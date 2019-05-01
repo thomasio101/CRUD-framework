@@ -1,0 +1,19 @@
+{
+  "name": "crud-framework",
+  "version": "1.0.0",
+  "description": "A framework for implementing command based CRUD.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasio101/CRUD-framework.git"
+  },
+  "author": "Thomas Egbert Duursma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thomasio101/CRUD-framework/issues"
+  },
+  "homepage": "https://github.com/thomasio101/CRUD-framework#readme"
+}
