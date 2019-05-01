@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/thomasio101/CRUD-framework/issues"
   },
-  "homepage": "https://github.com/thomasio101/CRUD-framework#readme"
+  "homepage": "https://github.com/thomasio101/CRUD-framework#readme",
+  "dependencies": {
+    "@types/mysql2": "github:types/mysql2",
+    "mysql2": "^1.6.5"
+  }
 }
