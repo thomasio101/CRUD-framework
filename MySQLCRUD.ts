@@ -1,12 +1,14 @@
 import CRUDImplementation from './CRUDImplementation';
 import * as mysql from 'mysql2/promise';
 
-type MySQLCRUDCreateCommand<T, identifierColumn extends keyof T> = Pick<T, Exclude<keyof T, identifierColumn>>
-type MySQLCRUDUpdateCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>> & Partial<Pick<T, Exclude<keyof T, identifierColumn>>>
-type MySQLCRUDDeleteCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>>
+namespace MySQLCRUD {
+    export type CreateCommand<T, identifierColumn extends keyof T> = Pick<T, Exclude<keyof T, identifierColumn>>
+    export type UpdateCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>> & Partial<Pick<T, Exclude<keyof T, identifierColumn>>>
+    export type DeleteCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>>
+}
 
-export default class MySQLCRUD<T, identifierColumn extends keyof T> implements CRUDImplementation<T, number, MySQLCRUDCreateCommand<T, identifierColumn>, MySQLCRUDUpdateCommand<T, identifierColumn>, MySQLCRUDDeleteCommand<T, identifierColumn>> {
-    constructor(private connectionPool: mysql.Pool, private table: string, private identifierColumn: string) {};
+export default class MySQLCRUD<T, identifierColumn extends keyof T> implements CRUDImplementation<T, number, MySQLCRUD.CreateCommand<T, identifierColumn>, MySQLCRUD.UpdateCommand<T, identifierColumn>, MySQLCRUD.DeleteCommand<T, identifierColumn>> {
+    constructor(private connectionPool: mysql.Pool, private table: string, private identifierColumn: string) { };
 
     async get(identifer: number): Promise<T> {
         const connection = await this.connectionPool.getConnection()
@@ -38,7 +40,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
         return results
     }
 
-    async create(command: MySQLCRUDCreateCommand<T, identifierColumn>): Promise<T> {
+    async create(command: MySQLCRUD.CreateCommand<T, identifierColumn>): Promise<T> {
         const connection = await this.connectionPool.getConnection()
 
         const [{insertId}] = await connection.query(
@@ -51,7 +53,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
         return { [this.identifierColumn]: insertId, ...command } as unknown as T
     }
 
-    async update(command: MySQLCRUDUpdateCommand<T, identifierColumn>): Promise<void> {
+    async update(command: MySQLCRUD.UpdateCommand<T, identifierColumn>): Promise<void> {
         const connection = await this.connectionPool.getConnection()
 
         const identifer: number = command[this.identifierColumn]
@@ -69,7 +71,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
         connection.release()
     }
 
-    async delete(command: MySQLCRUDDeleteCommand<T, identifierColumn>): Promise<void> {
+    async delete(command: MySQLCRUD.DeleteCommand<T, identifierColumn>): Promise<void> {
         const connection = await this.connectionPool.getConnection()
 
         const identifer: number = command[this.identifierColumn]
