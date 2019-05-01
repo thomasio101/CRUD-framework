@@ -12,7 +12,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
 
     async get(identifer: number): Promise<T> {
         const connection = await this.connectionPool.getConnection()
-        
+
         const [results] = await connection.query(
             'SELECT * FROM ?? WHERE ?? = ? LIMIT 1;',
             [this.table, this.identifierColumn, identifer]
@@ -20,7 +20,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
 
         connection.release()
 
-        if(results.length > 0) {
+        if (results.length > 0) {
             return results[0]
         } else {
             return null
@@ -29,7 +29,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
 
     async getAll(): Promise<Iterable<T>> {
         const connection = await this.connectionPool.getConnection()
-        
+
         const [results] = await connection.query(
             'SELECT * FROM ??;',
             [this.table]
@@ -43,7 +43,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
     async create(command: MySQLCRUD.CreateCommand<T, identifierColumn>): Promise<T> {
         const connection = await this.connectionPool.getConnection()
 
-        const [{insertId}] = await connection.query(
+        const [{ insertId }] = await connection.query(
             'INSERT INTO people SET ?;',
             [command]
         ) as [mysql.OkPacket, mysql.FieldPacket[]]
@@ -58,7 +58,7 @@ export default class MySQLCRUD<T, identifierColumn extends keyof T> implements C
 
         const identifer: number = command[this.identifierColumn]
 
-        let properties = {...command}
+        let properties = { ...command }
         delete properties[this.identifierColumn]
 
         await connection.query(
