@@ -80,6 +80,7 @@ class MySQLCRUD<T, identifierColumn extends keyof T> implements CRUDImplementati
         connection.release()
     }
 }
+
 namespace MySQLCRUD {
     export type CreateCommand<T, identifierColumn extends keyof T> = Pick<T, Exclude<keyof T, identifierColumn>>
     export type UpdateCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>> & Partial<Pick<T, Exclude<keyof T, identifierColumn>>>
