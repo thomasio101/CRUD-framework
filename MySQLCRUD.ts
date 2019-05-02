@@ -79,12 +79,141 @@ class MySQLCRUD<T, identifierColumn extends keyof T> implements CRUDImplementati
 
         connection.release()
     }
+
+    async query(command: MySQLCRUD.QueryCommand<T>): Promise<T[]> {
+        let sql = 'SELECT * FROM ?? WHERE'
+        let parameters: any[] = [this.table]
+        let first = true
+
+        for(const key in command) {
+            const comparison = <MySQLCRUD.Comparator<T[keyof T]>>command[key]
+
+            if(!first) sql += ' AND'
+            
+            first = false
+
+            switch(comparison.comparator) {
+                case MySQLCRUD.ComparatorKind.Equal:
+                sql += ' ?? = ?'
+                break
+                case MySQLCRUD.ComparatorKind.NotEqual:
+                sql += ' ?? != ?'
+                break
+                case MySQLCRUD.ComparatorKind.GreaterThan:
+                sql += ' ?? > ?'
+                break
+                case MySQLCRUD.ComparatorKind.GreaterThanOrEqualTo:
+                sql += ' ?? >= ?'
+                break
+                case MySQLCRUD.ComparatorKind.LesserThan:
+                sql += ' ?? < ?'
+                break
+                case MySQLCRUD.ComparatorKind.LesserThanOrEqualTo:
+                sql += ' ?? <= ?'
+                break
+                case MySQLCRUD.ComparatorKind.In:
+                sql += ' ?? IN (?)'
+                break
+                case MySQLCRUD.ComparatorKind.NotIn:
+                sql += ' ?? NOT IN (?)'
+                break
+                case MySQLCRUD.ComparatorKind.Like:
+                sql += ' ?? LIKE ?'
+                break
+                case MySQLCRUD.ComparatorKind.NotLike:
+                sql += ' ?? NOT LIKE ?'
+                break
+            }
+
+            parameters = [...parameters, key, comparison.value]
+        }
+
+        sql += ';'
+
+        const connection = await this.connectionPool.getConnection()
+        
+        const [results] = await connection.query(
+            sql,
+            parameters
+        ) as [mysql.RowDataPacket[], mysql.FieldPacket[]]
+
+        connection.release()
+
+        return results as T[]
+    }
 }
 
 namespace MySQLCRUD {
     export type CreateCommand<T, identifierColumn extends keyof T> = Pick<T, Exclude<keyof T, identifierColumn>>
     export type UpdateCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>> & Partial<Pick<T, Exclude<keyof T, identifierColumn>>>
     export type DeleteCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>>
+
+    export enum ComparatorKind {
+        Equal,
+        NotEqual,
+        GreaterThan,
+        GreaterThanOrEqualTo,
+        LesserThan,
+        LesserThanOrEqualTo,
+        In,
+        NotIn,
+        Like,
+        NotLike
+    }
+    
+    export interface Equal<T> {
+        comparator: ComparatorKind.Equal
+        value: T
+    }
+
+    export interface NotEqual<T> {
+        comparator: ComparatorKind.NotEqual
+        value: T
+    }
+
+    export interface GreaterThan<T> {
+        comparator: ComparatorKind.GreaterThan,
+        value: T
+    }
+
+    export interface GreaterThanOrEqualTo<T> {
+        comparator: ComparatorKind.GreaterThanOrEqualTo,
+        value: T
+    }
+
+    export interface LesserThan<T> {
+        comparator: ComparatorKind.LesserThan,
+        value: T
+    }
+    
+    export interface LesserThanOrEqualTo<T> {
+        comparator: ComparatorKind.LesserThanOrEqualTo,
+        value: T
+    }
+
+    export interface In<T> {
+        comparator: ComparatorKind.In,
+        value: T[]
+    }
+
+    export interface NotIn<T> {
+        comparator: ComparatorKind.NotIn,
+        value: T[]
+    }
+
+    export interface Like {
+        comparator: ComparatorKind.Like,
+        value: String
+    }
+
+    export interface NotLike {
+        comparator: ComparatorKind.NotLike,
+        value: String
+    }
+
+    export type Comparator<T> = Equal<T> | NotEqual<T> | GreaterThan<T> | GreaterThanOrEqualTo<T> | LesserThan<T> | LesserThanOrEqualTo<T> | In<T> | NotIn<T> | Like | NotLike
+
+    export type QueryCommand<T> = AtLeastOne<{[K in keyof T]: Comparator<T[K]>}>
 }
 
 export default MySQLCRUD
