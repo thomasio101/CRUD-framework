@@ -93,34 +93,34 @@ class MySQLCRUD<T, identifierColumn extends keyof T> implements CRUDImplementati
             first = false
 
             switch(comparison.comparator) {
-                case MySQLCRUD.ComparatorKind.Equal:
+                case MySQLCRUD.Comparator.Kind.Equal:
                 sql += ' ?? = ?'
                 break
-                case MySQLCRUD.ComparatorKind.NotEqual:
+                case MySQLCRUD.Comparator.Kind.NotEqual:
                 sql += ' ?? != ?'
                 break
-                case MySQLCRUD.ComparatorKind.GreaterThan:
+                case MySQLCRUD.Comparator.Kind.GreaterThan:
                 sql += ' ?? > ?'
                 break
-                case MySQLCRUD.ComparatorKind.GreaterThanOrEqualTo:
+                case MySQLCRUD.Comparator.Kind.GreaterThanOrEqualTo:
                 sql += ' ?? >= ?'
                 break
-                case MySQLCRUD.ComparatorKind.LesserThan:
+                case MySQLCRUD.Comparator.Kind.LesserThan:
                 sql += ' ?? < ?'
                 break
-                case MySQLCRUD.ComparatorKind.LesserThanOrEqualTo:
+                case MySQLCRUD.Comparator.Kind.LesserThanOrEqualTo:
                 sql += ' ?? <= ?'
                 break
-                case MySQLCRUD.ComparatorKind.In:
+                case MySQLCRUD.Comparator.Kind.In:
                 sql += ' ?? IN (?)'
                 break
-                case MySQLCRUD.ComparatorKind.NotIn:
+                case MySQLCRUD.Comparator.Kind.NotIn:
                 sql += ' ?? NOT IN (?)'
                 break
-                case MySQLCRUD.ComparatorKind.Like:
+                case MySQLCRUD.Comparator.Kind.Like:
                 sql += ' ?? LIKE ?'
                 break
-                case MySQLCRUD.ComparatorKind.NotLike:
+                case MySQLCRUD.Comparator.Kind.NotLike:
                 sql += ' ?? NOT LIKE ?'
                 break
             }
@@ -148,70 +148,72 @@ namespace MySQLCRUD {
     export type UpdateCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>> & Partial<Pick<T, Exclude<keyof T, identifierColumn>>>
     export type DeleteCommand<T, identifierColumn extends keyof T> = Pick<T, Extract<keyof T, identifierColumn>>
 
-    export enum ComparatorKind {
-        Equal,
-        NotEqual,
-        GreaterThan,
-        GreaterThanOrEqualTo,
-        LesserThan,
-        LesserThanOrEqualTo,
-        In,
-        NotIn,
-        Like,
-        NotLike
-    }
+    export namespace Comparator {
+        export enum Kind {
+            Equal,
+            NotEqual,
+            GreaterThan,
+            GreaterThanOrEqualTo,
+            LesserThan,
+            LesserThanOrEqualTo,
+            In,
+            NotIn,
+            Like,
+            NotLike
+        }
+        
+        export interface Equal<T> {
+            comparator: Kind.Equal
+            value: T
+        }
     
-    export interface Equal<T> {
-        comparator: ComparatorKind.Equal
-        value: T
-    }
-
-    export interface NotEqual<T> {
-        comparator: ComparatorKind.NotEqual
-        value: T
-    }
-
-    export interface GreaterThan<T> {
-        comparator: ComparatorKind.GreaterThan,
-        value: T
-    }
-
-    export interface GreaterThanOrEqualTo<T> {
-        comparator: ComparatorKind.GreaterThanOrEqualTo,
-        value: T
-    }
-
-    export interface LesserThan<T> {
-        comparator: ComparatorKind.LesserThan,
-        value: T
-    }
+        export interface NotEqual<T> {
+            comparator: Kind.NotEqual
+            value: T
+        }
     
-    export interface LesserThanOrEqualTo<T> {
-        comparator: ComparatorKind.LesserThanOrEqualTo,
-        value: T
+        export interface GreaterThan<T> {
+            comparator: Kind.GreaterThan,
+            value: T
+        }
+    
+        export interface GreaterThanOrEqualTo<T> {
+            comparator: Kind.GreaterThanOrEqualTo,
+            value: T
+        }
+    
+        export interface LesserThan<T> {
+            comparator: Kind.LesserThan,
+            value: T
+        }
+        
+        export interface LesserThanOrEqualTo<T> {
+            comparator: Kind.LesserThanOrEqualTo,
+            value: T
+        }
+    
+        export interface In<T> {
+            comparator: Kind.In,
+            value: T[]
+        }
+    
+        export interface NotIn<T> {
+            comparator: Kind.NotIn,
+            value: T[]
+        }
+    
+        export interface Like {
+            comparator: Kind.Like,
+            value: String
+        }
+    
+        export interface NotLike {
+            comparator: Kind.NotLike,
+            value: String
+        }
     }
 
-    export interface In<T> {
-        comparator: ComparatorKind.In,
-        value: T[]
-    }
-
-    export interface NotIn<T> {
-        comparator: ComparatorKind.NotIn,
-        value: T[]
-    }
-
-    export interface Like {
-        comparator: ComparatorKind.Like,
-        value: String
-    }
-
-    export interface NotLike {
-        comparator: ComparatorKind.NotLike,
-        value: String
-    }
-
-    export type Comparator<T> = Equal<T> | NotEqual<T> | GreaterThan<T> | GreaterThanOrEqualTo<T> | LesserThan<T> | LesserThanOrEqualTo<T> | In<T> | NotIn<T> | Like | NotLike
+    export type Comparator<T> = Comparator.Equal<T> | Comparator.NotEqual<T> | Comparator.GreaterThan<T> | Comparator.GreaterThanOrEqualTo<T> | Comparator.LesserThan<T> | Comparator.LesserThanOrEqualTo<T> | Comparator.In<T> | Comparator.NotIn<T> | Comparator.Like | Comparator.NotLike
 
     export type QueryCommand<T> = AtLeastOne<{[K in keyof T]: Comparator<T[K]>}>
 }
