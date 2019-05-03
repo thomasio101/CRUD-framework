@@ -173,42 +173,42 @@ namespace MySQLCRUD {
         }
     
         export interface GreaterThan<T> {
-            comparator: Kind.GreaterThan,
+            comparator: Kind.GreaterThan
             value: T
         }
     
         export interface GreaterThanOrEqualTo<T> {
-            comparator: Kind.GreaterThanOrEqualTo,
+            comparator: Kind.GreaterThanOrEqualTo
             value: T
         }
     
         export interface LesserThan<T> {
-            comparator: Kind.LesserThan,
+            comparator: Kind.LesserThan
             value: T
         }
         
         export interface LesserThanOrEqualTo<T> {
-            comparator: Kind.LesserThanOrEqualTo,
+            comparator: Kind.LesserThanOrEqualTo
             value: T
         }
     
         export interface In<T> {
-            comparator: Kind.In,
+            comparator: Kind.In
             value: T[]
         }
     
         export interface NotIn<T> {
-            comparator: Kind.NotIn,
+            comparator: Kind.NotIn
             value: T[]
         }
     
         export interface Like {
-            comparator: Kind.Like,
+            comparator: Kind.Like
             value: String
         }
     
         export interface NotLike {
-            comparator: Kind.NotLike,
+            comparator: Kind.NotLike
             value: String
         }
     }
